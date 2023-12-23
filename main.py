@@ -4,6 +4,7 @@ from backend import get_data
 
 # Add title, slider, option box, etc.
 st.title("Shonamma's Weather Forecast")
+st.subheader("Wather Forecast for the Next Days:")
 
 place = st.text_input("Place:")
 days = st.slider("Forecast days", min_value=1, max_value=5)

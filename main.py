@@ -2,70 +2,85 @@ import streamlit as st
 import plotly.express as px
 from backend import get_data
 
-# Add title, slider, option box, etc.
+st.set_page_config(
+    page_title="Weather Forecast",
+    page_icon="🌤️",
+    layout="wide"
+)
+
 st.title("Shonamma's Weather Forecast")
-st.subheader("Wather Forecast for the Next Days:")
+st.subheader("Weather Forecast for the Next Days")
 
 place = st.text_input("Place:")
-days = st.slider("Forecast days", min_value=1, max_value=5)
-option = st.selectbox("Select data to view", ('Temperature', 'Sky'))
-st.subheader(f'{option} for the next {days} days in {place}')
+days = st.slider("Forecast Days", min_value=1, max_value=5)
+
+option = st.selectbox(
+    "Select data to view",
+    ("Temperature", "Sky")
+)
+
+st.subheader(f"{option} for the next {days} days in {place}")
 
 try:
     if place:
-        # Get data from backend
         filtered_data = get_data(place, days)
-        # Create graph/plot
-        if option == 'Temperature':
-            temperatures = [dict['main']['temp']/10 for dict in filtered_data]
-            dates = [dict['dt_txt'] for dict in filtered_data]
-            figure = px.line(x=dates, y=temperatures, labels={'x': "Dates", 'y': 'Temperature [C]'})
-            st.plotly_chart(figure)
-            
-        if option == 'Sky':
-            sky_conditions = [dict['weather'][0]['main'] for dict in filtered_data]
-            images = {"Clear":'images/clear.png',
-                    "Clouds":'images/cloud.png',
-                    "Rain":'images/rain.png',
-                    "Snow":'images/snow.png'}
-            image_paths = [images[condition] for condition in sky_conditions]
-            st.image(image_paths,width=120)
-except KeyError:
-    st.subheader("No such Place on earth")
-# Social media links
-st.markdown(
-    """
-    <style>
-    .social-media {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 50px;
-    }
-    .social-media a {
-        margin: 0 30px;
-        text-decoration: none;
-        color: #4a4a4a;
-    }
-    </style>
-    """
-    , unsafe_allow_html=True)
-st.markdown(
-    """
-    <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    </head>
-    """
-    , unsafe_allow_html=True)
 
+        if option == "Temperature":
+            temperatures = [
+                item["main"]["temp"]
+                for item in filtered_data
+            ]
+
+            dates = [
+                item["dt_txt"]
+                for item in filtered_data
+            ]
+
+            figure = px.line(
+                x=dates,
+                y=temperatures,
+                labels={
+                    "x": "Date",
+                    "y": "Temperature (°C)"
+                },
+                title=f"Temperature Forecast for {place}"
+            )
+
+            st.plotly_chart(figure, use_container_width=True)
+
+        elif option == "Sky":
+            sky_conditions = [
+                item["weather"][0]["main"]
+                for item in filtered_data
+            ]
+
+            images = {
+                "Clear": "images/clear.png",
+                "Clouds": "images/cloud.png",
+                "Rain": "images/rain.png",
+                "Snow": "images/snow.png"
+            }
+
+            image_paths = [
+                images.get(condition, "images/cloud.png")
+                for condition in sky_conditions
+            ]
+
+            st.image(image_paths, width=120)
+
+except KeyError:
+    st.error("No such place found.")
+except Exception as e:
+    st.error(f"Error: {e}")
+
+st.markdown("---")
 st.markdown(
     """
-    <div class="social-media">
-        <a href="https://www.twitter.com/krshxcx"><i class="fab fa-twitter"></i></a>
-        <a href="https://github.com/krshxcx"><i class="fab fa-github"></i></a>
-        <a href="https://www.instagram.com/krshxcx"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.linkedin.com/in/saikrishna-durgam/"><i class="fab fa-linkedin"></i></a>
-    </div>
-    """
-    , unsafe_allow_html=True)
-                
+### Connect with Me
+
+- GitHub: https://github.com/krshxcx
+- LinkedIn: https://www.linkedin.com/in/saikrishna-durgam/
+- Instagram: https://www.instagram.com/krshxcx
+- Twitter: https://twitter.com/krshxcx
+"""
+)
